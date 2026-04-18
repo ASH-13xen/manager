@@ -3,10 +3,14 @@ import dbConnect from '@/lib/db';
 import Preparation from '@/models/Preparation';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { getUserFromSession } from '@/lib/auth';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string, questionId: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id, questionId } = await params;
     const formData = await request.formData();
     
@@ -15,7 +19,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const answerText = formData.get('answerText') as string;
     const file = formData.get('file') as File | null;
     
-    const preparation = await Preparation.findById(id);
+    const preparation = await Preparation.findOne({ _id: id, userId: session.userId });
     if (!preparation) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
     const question = preparation.questions.id(questionId);
@@ -51,8 +55,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string, questionId: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id, questionId } = await params;
-    const preparation = await Preparation.findById(id);
+    const preparation = await Preparation.findOne({ _id: id, userId: session.userId });
     if (!preparation) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
     preparation.questions.pull({ _id: questionId });

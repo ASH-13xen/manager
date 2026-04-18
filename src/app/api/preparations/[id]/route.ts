@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Preparation from '@/models/Preparation';
 import { ITopic } from '@/models/Preparation';
+import { getUserFromSession } from '@/lib/auth';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
-    const preparation = await Preparation.findById(id);
+    const preparation = await Preparation.findOne({ _id: id, userId: session.userId });
     if (!preparation) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: preparation });
   } catch (error: any) {
@@ -18,10 +22,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
     const body = await request.json();
 
-    const preparation = await Preparation.findById(id);
+    const preparation = await Preparation.findOne({ _id: id, userId: session.userId });
     if (!preparation) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
     if (body.action === 'mark_completed') {
@@ -63,8 +70,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
-    const del = await Preparation.deleteOne({ _id: id });
+    const del = await Preparation.deleteOne({ _id: id, userId: session.userId });
     if (!del.deletedCount) {
       return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     }

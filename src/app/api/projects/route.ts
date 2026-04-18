@@ -3,11 +3,15 @@ import dbConnect from '@/lib/db';
 import Project from '@/models/Project';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { getUserFromSession } from '@/lib/auth';
 
 export async function GET() {
   try {
     await dbConnect();
-    const projects = await Project.find({}).sort({ createdAt: -1 });
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    
+    const projects = await Project.find({ userId: session.userId }).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: projects });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
@@ -17,6 +21,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const formData = await request.formData();
     
     const title = formData.get('title') as string;
@@ -46,6 +53,7 @@ export async function POST(request: Request) {
     }
 
     const project = await Project.create({
+      userId: session.userId,
       title,
       description,
       type,

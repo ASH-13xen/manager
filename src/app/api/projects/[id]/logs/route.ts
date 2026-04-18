@@ -3,10 +3,14 @@ import dbConnect from '@/lib/db';
 import Project from '@/models/Project';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { getUserFromSession } from '@/lib/auth';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
     const formData = await request.formData();
     
@@ -40,7 +44,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       fileUrl = `/uploads/${safeFileName}`;
     }
 
-    const project = await Project.findById(id);
+    const project = await Project.findOne({ _id: id, userId: session.userId });
     if (!project) return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
 
     const version = project.versions.find((v: any) => v._id.toString() === versionId);

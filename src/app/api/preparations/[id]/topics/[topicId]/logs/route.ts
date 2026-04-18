@@ -3,10 +3,14 @@ import dbConnect from '@/lib/db';
 import Preparation from '@/models/Preparation';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { getUserFromSession } from '@/lib/auth';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string, topicId: string }> }) {
   try {
     await dbConnect();
+    const session = await getUserFromSession();
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { id, topicId } = await params;
     const formData = await request.formData();
     
@@ -39,7 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       fileUrl = `/uploads/${safeFileName}`;
     }
 
-    const preparation = await Preparation.findById(id);
+    const preparation = await Preparation.findOne({ _id: id, userId: session.userId });
     if (!preparation) return NextResponse.json({ success: false, error: 'Subject not found' }, { status: 404 });
 
     const topic = preparation.roadmap.find((t: any) => t._id.toString() === topicId);

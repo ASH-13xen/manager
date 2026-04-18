@@ -1,11 +1,27 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FolderKanban, BookOpenCheck } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50 flex flex-col items-center justify-center p-8">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-neutral-950 to-neutral-950 -z-10"></div>
       
+      <div className="absolute top-8 right-8">
+        <button onClick={handleLogout} className="text-xs px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white rounded-lg transition-colors">
+          Sign Out
+        </button>
+      </div>
+
       <div className="max-w-4xl w-full text-center mb-16 space-y-4">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-gradient-to-br from-white to-neutral-500 bg-clip-text text-transparent">
           Command Center

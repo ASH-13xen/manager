@@ -18,6 +18,7 @@ export interface IVersion {
 }
 
 export interface IProject extends Document {
+  userId: mongoose.Types.ObjectId;
   title: string;
   description?: string;
   type: 'personal' | 'client' | 'hackathon' | 'college' | 'internship';
@@ -44,6 +45,7 @@ const VersionSchema = new Schema<IVersion>({
 
 const ProjectSchema = new Schema<IProject>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
     description: { type: String },
     type: { 

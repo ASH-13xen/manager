@@ -28,6 +28,7 @@ export interface IQuestion {
 }
 
 export interface IPreparation extends Document {
+  userId: mongoose.Types.ObjectId;
   title: string;
   type: 'core cse' | 'skill-based';
   roadmap: ITopic[];
@@ -55,6 +56,7 @@ const QuestionSchema = new Schema<IQuestion>({
 
 const PreparationSchema = new Schema<IPreparation>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
     type: { 
       type: String, 
