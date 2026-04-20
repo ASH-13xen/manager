@@ -283,10 +283,10 @@ export default function MoneyTrackerPage() {
                       />
                     </Pie>
                       <RechartsTooltip 
-                        formatter={(value: number) => [`₹${value.toFixed(2)}`, 'Amount']}
-                        contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '12px' }}
-                        itemStyle={{ color: '#eab308' }}
-                      />
+  formatter={(value: any) => [`₹${Number(value).toFixed(2)}`, 'Amount']}
+  contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '12px' }}
+  cursor={{ fill: '#262626' }}
+/>
                       <Legend wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }} />
                     </PieChart>
                 ) : (
@@ -295,10 +295,10 @@ export default function MoneyTrackerPage() {
                     <XAxis dataKey="date" stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="#737373" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
                     <RechartsTooltip 
-                      formatter={(value: number) => [`₹${value.toFixed(2)}`, 'Amount']}
-                      contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '12px' }}
-                      cursor={{ fill: '#262626' }}
-                    />
+  formatter={(value: any) => [`₹${Number(value).toFixed(2)}`, 'Amount']}
+  contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '12px' }}
+  cursor={{ fill: '#262626' }}
+/>
                     <Bar dataKey="amount" fill="#eab308" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 )}
